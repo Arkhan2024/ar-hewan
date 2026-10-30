@@ -27,7 +27,7 @@ AFRAME.registerComponent("fit-model", {
       const k = this.data.size / Math.max(ukuran.x, ukuran.y, ukuran.z) || 1;
 
       obj.scale.setScalar(k);
-      obj.position.set(-tengah.x * k, -tengah.y * k, -box.min.z * k);
+      obj.position.set(-tengah.x * k, -tengah.y * k, -tengah.z * k);   // pusat model = pusat marker
       this.el.setAttribute("visible", true);   // tampil setelah ukuran pas
     });
   },

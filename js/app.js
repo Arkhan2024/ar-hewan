@@ -53,7 +53,7 @@ function buildScene(mindUrl) {
 
   document.querySelectorAll("[mindar-image-target]").forEach((target, i) => {
     target.addEventListener("targetFound", () => onMarkerFound(i));
-    target.addEventListener("targetLost", onMarkerLost);
+    target.addEventListener("targetLost", () => onMarkerLost(i));
   });
 }
 
@@ -78,6 +78,7 @@ function muatModel() {
   showStatus(`Memuat model 3D… 0/${ANIMALS.length}`);
   modelEls.forEach((el, i) => {
     el.innerHTML = `<a-gltf-model src="${ASSET_FOLDER}/${ANIMALS[i].id}.glb" visible="false"
+                                  rotation="${ANIMALS[i].rotasi || "0 0 0"}"
                                   fit-model="size: 0.9" play-animation></a-gltf-model>`;
     const gltf = el.firstElementChild;
     gltf.addEventListener("model-loaded", () => {
@@ -94,35 +95,65 @@ function muatModel() {
 }
 
 /* ---------- 3. Marker ditemukan / hilang ---------- */
+const JEDA_HILANG = 1200;   // ms: marker dianggap hilang setelah jeda ini (pelacakan sering berkedip)
+let timerHilang = null;
+
 function onMarkerFound(i) {
-  hentikanSuara();
+  clearTimeout(timerHilang);
+  if (i !== current) hentikanSuara();            // pindah ke hewan lain -> hentikan suara lama
   current = i;
-  $("animal-name").textContent = ANIMALS[i].nama;
-  $("animal-info").textContent = ANIMALS[i].info + (modelGagal.has(i) ? " (Model 3D gagal dimuat.)" : "");
+  const hewan = ANIMALS[i];
+  const catatan = [];
+  if (modelGagal.has(i))      catatan.push(`Model 3D ${hewan.id}.glb tidak ditemukan.`);
+  if (suaraGagal.has(hewan.id)) catatan.push(`Suara ${hewan.id}.mp3 tidak ditemukan.`);
+  $("animal-name").textContent = hewan.nama;
+  $("animal-info").textContent = hewan.info + (catatan.length ? ` (${catatan.join(" ")})` : "");
   $("panel").hidden = false;
   $("status").hidden = true;
 }
-function onMarkerLost() {
-  hentikanSuara();
-  $("panel").hidden = true;
-  showStatus("Arahkan kamera ke marker");
+function onMarkerLost(i) {
+  if (i !== current) return;                     // abaikan marker lain yang sudah tidak aktif
+  clearTimeout(timerHilang);
+  timerHilang = setTimeout(() => {
+    hentikanSuara();
+    $("panel").hidden = true;
+    showStatus("Arahkan kamera ke marker");
+  }, JEDA_HILANG);
 }
 
 /* ---------- 4. Audio: suara hewan (assets/<id>.mp3) ---------- */
-let suara = null;
+const suaraGagal = new Set();   // id hewan yang file suaranya bermasalah
+const suara = {};               // id -> objek Audio (dimuat di awal supaya siap diputar)
 
+function siapkanSuara() {
+  ANIMALS.forEach((hewan) => {
+    const audio = new Audio(`${ASSET_FOLDER}/${hewan.id}.mp3`);
+    audio.preload = "auto";
+    audio.addEventListener("ended", hentikanSuara);
+    audio.addEventListener("error", () => suaraGagal.add(hewan.id));
+    suara[hewan.id] = audio;
+  });
+}
+function setTombolSuara(sedangMain) {
+  $("btn-audio").textContent = sedangMain ? "⏹ Berhenti" : "🔊 Dengarkan";
+}
 function hentikanSuara() {
-  if (suara) { suara.pause(); suara = null; }
-  $("btn-audio").textContent = "🔊 Dengarkan";
+  Object.values(suara).forEach((audio) => { audio.pause(); audio.currentTime = 0; });
+  setTombolSuara(false);
 }
 function putarSuara() {
-  if (suara) { hentikanSuara(); return; }       // tekan lagi = berhenti
-  const hewan = ANIMALS[current];
-  suara = new Audio(`${ASSET_FOLDER}/${hewan.id}.mp3`);
-  suara.onended = hentikanSuara;
-  suara.play()
-    .then(() => { $("btn-audio").textContent = "⏹ Berhenti"; })
-    .catch(() => { suara = null; showStatus(`Suara ${hewan.id}.mp3 tidak bisa diputar (cek folder assets).`, true); });
+  const id = ANIMALS[current].id;
+  const audio = suara[id];
+  if (!audio.paused) { hentikanSuara(); return; }    // tekan lagi = berhenti
+  audio.currentTime = 0;
+  audio.play()
+    .then(() => setTombolSuara(true))
+    .catch((err) => {
+      if (err.name === "AbortError") return;         // diputus karena dihentikan, bukan error
+      showStatus(suaraGagal.has(id)
+        ? `File assets/${id}.mp3 tidak ditemukan atau formatnya tidak didukung.`
+        : `Suara ${id} gagal diputar (${err.name}).`, true);
+    });
 }
 
 /* ---------- 5. Interaksi: scale & rotate ---------- */
@@ -190,6 +221,7 @@ async function start() {
         throw new Error(`${ANIMALS[i].id}.mind harus berisi 1 marker (isinya ${jumlah}).`);
     });
 
+    siapkanSuara();
     showStatus("Memulai MindAR… izinkan akses kamera jika diminta.");
     buildScene(url);
   } catch (err) {
