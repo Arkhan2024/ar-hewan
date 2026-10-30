@@ -1,0 +1,33 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: #111; }
+
+/* Kontainer AR memenuhi layar */
+#ar-container { position: fixed; inset: 0; overflow: hidden; }
+
+/* Pesan status di tengah layar */
+#status {
+  position: fixed; top: 12px; left: 12px; right: 12px; z-index: 20;
+  background: rgba(0,0,0,.75); color: #fff; padding: 10px 14px;
+  border-radius: 10px; font-size: 14px; text-align: center;
+}
+#status.error { background: #b00020; }
+
+/* Panel informasi di bawah */
+#panel {
+  position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 10;
+  max-width: 520px; margin: 0 auto; padding: 12px 14px;
+  background: rgba(20,20,30,.88); color: #fff; border-radius: 14px;
+}
+#panel[hidden] { display: none; }
+#panel h2 { margin: 0 0 4px; font-size: 18px; }
+#panel p  { margin: 0 0 10px; font-size: 14px; line-height: 1.4; }
+#panel small { display: block; margin-top: 8px; opacity: .7; font-size: 12px; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+button {
+  border: 0; border-radius: 10px; padding: 9px 12px;
+  font-size: 14px; font-weight: 600; background: #e9ecef; color: #222;
+}
+#btn-audio { background: #ffb703; }
+
+#status[hidden] { display: none; }

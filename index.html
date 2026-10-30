@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AR Kenali Hewan</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Library: A-Frame (3D) + MindAR (pelacak marker) -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+<body>
+
+  <!-- Pesan status / error (selalu tampil di atas) -->
+  <div id="status">Memulai MindAR...</div>
+
+  <!-- Scene AR dibuat otomatis oleh js/app.js sesuai data di js/data.js -->
+  <div id="ar-container"></div>
+
+  <!-- Panel informasi + kontrol interaksi -->
+  <div id="panel" hidden>
+    <h2 id="animal-name"></h2>
+    <p id="animal-info"></p>
+    <div class="buttons">
+      <button id="btn-audio">🔊 Dengarkan</button>
+      <button id="btn-bigger">＋ Besar</button>
+      <button id="btn-smaller">－ Kecil</button>
+      <button id="btn-left">⟲ Putar</button>
+      <button id="btn-right">Putar ⟳</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+    <small>Geser 1 jari = putar · Cubit 2 jari = ubah ukuran</small>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/mind-merge.js"></script>
+  <script src="js/model-helpers.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
