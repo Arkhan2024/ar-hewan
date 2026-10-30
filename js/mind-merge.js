@@ -1,10 +1,3 @@
-// MindAR hanya menerima SATU file .mind per sesi.
-// Fungsi ini menggabungkan banyak file .mind (masing-masing berisi marker)
-// menjadi satu di browser, jadi menambah marker cukup menambah file.
-//
-// Format .mind (msgpack): {v: 2, dataList: [target1, target2, ...]}
-//   13 byte pertama = header sampai kunci "dataList", lalu header array, lalu isi target.
-
 const MIND_HEADER_BYTES = 13;
 
 // Baca jumlah target dan isi targetnya dari satu file .mind

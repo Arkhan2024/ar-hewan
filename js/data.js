@@ -15,18 +15,25 @@
 // ============================================================
 const ASSET_FOLDER = "assets";
 
+// Jika model 3D tampil terbalik/miring, atur `rotasi` (derajat sumbu X Y Z), contoh:
+//   rotasi: "180 0 0"  -> dibalik atas-bawah (depan-belakang)
+//   rotasi: "0 0 180"  -> diputar 180 derajat searah layar
+//   rotasi: "-90 0 0"  -> berdiri dari posisi rebah ke depan (kalau model Z-up)
+// Urutan di daftar = nomor marker (index). Marker ke-0 menampilkan hewan pertama, dst.
+//   index 0 -> Kucing   index 1 -> Burung   index 2 -> Anjing
 const ANIMALS = [
-  { id: "kucing", nama: "Kucing",
+  // index 0
+  { id: "kucing", nama: "Kucing", rotasi: "180 0 0",
     info: "Kucing adalah hewan karnivora yang gesit. Ia tidur 12 sampai 16 jam sehari dan bisa mendengar suara ultrasonik." },
+  // index 1
   { id: "burung", nama: "Burung",
     info: "Burung berbulu dan bertelur. Sebagian besar bisa terbang berkat sayap dan tulang yang ringan." },
+  // index 2
   { id: "anjing", nama: "Anjing",
     info: "Anjing adalah sahabat manusia yang setia. Penciumannya jauh lebih tajam dibanding manusia." },
-  { id: "monyet", nama: "Monyet",
-    info: "Monyet adalah primata cerdas yang hidup berkelompok. Ia pandai memanjat dan memakan buah serta dedaunan." },
 ];
 
-// Uji satu marker saja: buka index.html?only=monyet
+// Uji satu marker saja: buka index.html?only=kucing
 const ONLY = new URLSearchParams(location.search).get("only");
 if (ONLY) {
   const dipilih = ANIMALS.filter((a) => a.id === ONLY);
